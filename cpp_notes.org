@@ -3,7 +3,7 @@
 #+EMAIL:     wlamos@gmail.com
 #+DATE:      2010-12-20 Mon
 #+DESCRIPTION: 
-#+KEYWORDS: 
+#+KEYWORDS: C++, boost
 #+LANGUAGE:  en
 #+OPTIONS:   H:3 num:t toc:t \n:nil @:t ::t |:t ^:nil -:t f:t *:t <:t
 #+OPTIONS:   TeX:t LaTeX:t skip:nil d:nil todo:t pri:nil tags:not-in-toc
