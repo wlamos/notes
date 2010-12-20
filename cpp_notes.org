@@ -1,0 +1,654 @@
+#+TITLE:     C++ Notes
+#+AUTHOR:    Zhang Wenliang
+#+EMAIL:     wlamos@gmail.com
+#+DATE:      2010-12-20 Mon
+#+DESCRIPTION: 
+#+KEYWORDS: 
+#+LANGUAGE:  en
+#+OPTIONS:   H:3 num:t toc:t \n:nil @:t ::t |:t ^:nil -:t f:t *:t <:t
+#+OPTIONS:   TeX:t LaTeX:t skip:nil d:nil todo:t pri:nil tags:not-in-toc
+#+INFOJS_OPT: view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
+#+EXPORT_SELECT_TAGS: export
+#+EXPORT_EXCLUDE_TAGS: noexport
+#+LINK_UP:   
+#+LINK_HOME: 
+#+XSLT: 
+
+* Design and Evolution of CPP
+** Overloading
+I concluded that we need some notion of a "better match" rule so that we should prefer an exact type match to
+a match involving a conversion and prefer a safe conversion such as float to double over an unsafe (narrowing,
+value destroying, etc.) conversion such as float to int.
+
+** Object Creating and Copying
+
+If you want to prohibit something, make the operation that does it a private member function.
+
+Declaring a destructor private prevents stack and global allocation. It also prevents random use of delete.
+
+The opposite effect - allowing global and local variables, but disallowing free store allocation - is obtained
+by declaring only an unusual operator new(). 
+: class No_free_store
+: {
+:   class Dummy{};
+:   void *operator new(size_t, Dummy);
+:   //....
+: };
+
+** Memberwise copy
+
+Copying of objects is defined as the memberwise copy of non-static members and base class objects. This
+definition states that the meaning of x=y is x.operator=(y).
+
+memberwise copy => bitwise copy in POD type?
+
+* Exceptional C++
+** Memory Management
+The following summarizes a C++ program's major distinct memory areas.
+*** Const Data
+The const data area stores string literals and other data whose values are known at compile-time. No objects of
+class type can exist in this area.
+All data in this area is available during the entire lifetime of the program. Further, all this data is
+read-only, and the results of trying to modify it are undefined. This is in part because even the underlying
+storage format is subject to arbitrary optimization by the implementation. For example, a particular compiler
+may choose to store string literals in overlapping objects as an optional optimizaiton.
+
+*** Stack
+The stack stores automatic variables. Objects are constructed immediately at the point of definition and
+destroyed immediately at the end of the same scope, so there is no opportunity for programmers to directly
+manipulate allocated but uninitialized stack space(barring willful tampering using explicit destructors and
+placement new).
+Stack memory allocation is typically much faster than for dynamic storage(free store or heap) because each
+stack memory allocation involves only a stack pointer increment rather than more-complex management.
+
+*** Free Store
+The free store is one of the two dynamic memory areas allocated/freed by new/delete.
+
+*** Heap
+The heap is the other dynamic memory area allocated/freed by malloc()/free() and their variants.
+
+*** Global/Static
+Global or static variables and objects have their storage allocated at program startup, but may not be
+initialized until after the program has begun executing.
+
+The order of initialization of global variables across translation units is not defined, and special care is
+needed to manage dependencies between global objects(including class statics).
+
+It's unspecified whether new/delete is implemented in terms of malloc/free in a given implementation. It is
+specified, however, that malloc/free must not be implemented in terms of new/delete.
+
+Prefer using the free store(new/delete). Avoid using the heap(malloc/free)
+
+** Compiler Firewalls and the Pimpl Idiom
+Managing dependencies well is an essential part of writing solid code. C++ supports two powerful methods of
+abstraction: object-oriented programming and generic programming. Managing the code's interdependencies,
+manage the complexity within a software system.
+*** Minimize Compile-Time Dependencies
+Many programmers habitually #include many more headers than necessary. Unfortunately, doing so can seriously
+degrade build times, expecially when a popular header file includes too many other headers.
+
+Never #include unneccessary header files.
+Prefer to #include <iosfwd> when a forward declaration of a stream will suffice.
+Never #include a header when a forward declaration will suffice.
+**** How can you limit dependencies on the internals of a class?
+First make it right, then make it fast. Never optimize-neither for speed, nor for size-until your profiler and
+other tools tell you that you should.
+
+The pimpl Idiom's performance overhead
+1. each X construction/destruction must now allocate/deallocate memory for its XImpl object, which is
+   typically a relatively expensive operation.
+2. each access of a member in the Pimpl can require at least one extra indirection; if the hidden member being
+   accessed itself uses a back poiinter to call a function in the visible class, there will be multiple
+   indirections.
+
+As with any other optimization, use Pimpls in general and Fast Pimpls in particular only after profiling and
+experience prove that the extra performance boost is really needed in your situation.
+
+Avoid inlining or detailed tuning until performance profiles prove the need. 
+** Case-Insensitive Strings
+string isn't really a class, it's a typedef of a template.
+: template<typename _CharT, typename _Traits = char_traits<_CharT>,
+:          typename _Alloc= allocator<_CharT> >
+: class basic_string;
+: typedef basic_string<char> string
+char_traits defines how characters interact and compare.
+
+Public inheritance should normally model IS-A/WORKS-LIKE-A as per the Liskov Subsititution Principle(LSP).
+
+The standard library does not use traits objects polymorphically.
+
+** Maximally Reusable Generic Containers
+
+A copy constructor or copy asignment operator specifically constructs/assigns from another object of exactly
+the same type---including the same template arguments, if the class is templated. For examples:
+: struct X
+: {
+:   template<typename T>
+:   X(const T&); // Not copy constructor, T can't be X
+: 
+:   template <typename T>
+:   operator=(const T&); // Not copy assignment, T can't be X
+: };
+
+To quote from the standards:
+: Because a template constructor is never a copy constructor, the presence of such a template does not suppress
+: the implicit declaration of copy constructor. Template constructors participate in overload resolution with
+: other constructors, including copy constructors, and a template constructor may be used to copy an object if
+: it provides a better match than other constructors.
+
+** Temporary objects
+: Perfer passing objects by const& instead of passing by value.
+
+: string FindAddr(const list<Employee> &emps, const string &name)
+: {
+:     for(list<Employee>::const_iterator i = emps.begin();
+:         i!= emps.end(); i++)
+:     {
+:         /*...*/
+:     }
+: }
+
+For most containers(including list), calling end() returns a temporary object that must be constructed and
+destroyed. So this causes some inefficent.
+
+:Prefer precomputing values that won't change, instead of recreating objects unnecessarily.
+
+Consider the way we increment i in the above code:
+: for(/*...*/; i++)
+
+Postincrement is usually less efficient than preincrement because it has to remember and return its original
+value. Postincrement for a class T should generally be implemented using the canonical form, as follows:
+
+: const T T::operator++(int)
+: {
+:     T old(*this);
+:     ++*this;
+: 
+:     return old;
+: }
+
+: For consistency, always implement postincrement in terms of preincrement, otherwise your users will get
+: surprising (and often unpleasant) results.
+
+: Prefer preincrement. Only use postincrement if you're going to use the original value.
+
+: Be aware of object lifetimes. Never, ever, ever return pointers or references to local automatic objects;
+: they are completely unuseful because the calling code can't follow them, and (what's worse) the calling
+: code might try.
+
+[CPP Standards]
+
+Temporaries of class type are created in various contexts: binding an rvalue to a reference, returning an
+rvalue, a conversion that creates an rvalue, throwing an exception, entering a handler, and in some
+initializations. Even when the creation of the temporary object is avoided, all the semantic restrictions must
+be respected as if the temporary object was created.
+
+Example:
+
+: class X {
+: // ...
+: public:
+: //...
+:   X(int);
+:   X(const X&);
+:   ~X();
+: };
+: 
+: X f(x);
+: 
+: void g()
+: {
+:    X a(1);
+:    X b = f(X(2));
+:    a = f(a);
+: }
+
+Here, an implementation might use a temporary in which to construct X(2) before passing it to f() using X's
+copy-constructor; alternatively, X(2) might be constructed in the space used to hold the argument. Also, a
+temporary might be used to hold the result of f(X(2)) before copying it to b using X's copy-constructor;
+alternatively, f()'s result might be constructed in b. On the other hand, the expression a = f(2) requires a
+temporary for either the argument a or the result of f(a) to avoid undesired aliasing of a.
+
+When an implementation introduces a temporary object of a class that has a non-trivial constructor, it shall
+ensure that a constructor is called for the temporary object. Similarly, the destructor shall be called for a
+temporary with a non-trivial destructor. Temporary objects are destroyed as the last step in evaluating the
+full-expression that contains the point where they were created. This is true even if that evaluation ends in
+throwing an exception.
+
+There are two contexts in which temporaries are destroyed at a different point than the end of the full
+expression. The first context is when an expression appears as an initializer for a declarator defining an
+object. In that context, the temporary that holds the result of the expression shall persist until the
+object's initialization is complete. The object is initialized from a copy of the temporary; during this
+copying, an implementation can call the copy constructor many times; the temporary is destroyed after it has
+been copied, before or when the initialization completes. If many temporaries are created by the evaluation of
+the initializer, the temporaries are destroyed in reverse order of the completion of their construction.
+
+The second context is when a reference is bound to a temporary. The temporary to which the reference is bound
+or the temporary that is the complete object to a subobject of which the temporary is bound persists for the
+lifetime of the reference except as specified below. A temporary bound to a reference member in a
+constructors's ctor-initializer persists until the constructor exits. A temporary bound to a reference
+parameter in a function call persists until the completion of the full expression containing the call. A
+temporary bound to the returned value in a function return statement persists until the function exits. In all
+these cases, the temporaries created during the evaluation of the expression initializing the reference,
+except the temporary to which teh reference is bound, are destroyed at the end of the full-expression in which
+they are created and in the reverse order of the completion of their construction. If the lifetime of two or
+more temporaries to which references are boundends at the same point, these temporaries are destroyed at that
+point in the reverse order of the completion of theri construction.
+
+** Writing Exception-safe Code
+exception-safe : works properly in the presence of exceptions
+exception-neutral : propagates all exceptions to the caller
+
+What are the different "level" of exception safety?
+Can or should generic containers be fully exception-neutral?
+Are the standard library containers exception-safe of exception-neutral?
+Does exception safety affect the design of your container's public interface?
+Should generic containers use exception specifications?
+
+should always be in a correct and consistent state, regardless of any exceptions that are thrown, they should
+be propagated seamlessly through to the caller.
+
+: template<typename T>
+: Stack<T>::Stack()
+: :v_(new T[10]),
+:  vsize_(10),
+:  vused_(0)
+: {
+: }
+
+v_(new T[10]) : first call operator new[]() (either the default operator new[]() or one provided by T) to
+allocate the memory, then tries to call T::T a total of vsize_ times. There are two operations might
+fail. First, the memory allocation itself, in which case operator new[]() will throw a bad_alloc
+exception. Second the T's default constructor, which might throw anything at all.
+
+: If a function isn't going to handle (or translate or deliberately absorb) an exception, it should allow the
+: exception to propagate up to a caller who can handle it.
+
+: Always structure your code so that resources are correctly freed and data is in a consistent state even in the
+: presence of exceptions.
+
+: Observe the canonical exception-safty rules: In each function, take all the code that might emit an exception
+: and do all that work safely off to the side. Only then, when you know that the real work has succeeded, should
+: you modify the program state (and clean up) using only non-throwing operations.
+
+: Never make exception safety an afterthought. Exception safety affects a class's design. It is never "just an
+: implementation detail".
+
+"Exception-unsafe" and "poor design" go hand in hand. If a piece of code isn't exception-safe, that's
+generally okay and can simply be fixed. But if a piece of code can not be made exception-safe because of its
+underlying design, that almost always is a signal of its poor design. Example 1: A function with two different
+responsibilities is difficult to make exception-safe. Example 2: A copy assignment operator that is written in
+such a way that it must check for self-assignment is probably not strongly exception-safe.
+
+1. Basic guarantee: Even in the presence of exceptions thrown by T or other exceptions. Stack objects don't
+   leak resources.
+2. Strong guarantee: If an operation terminates because of an exception, program state will remain
+   unchanged. This always implies commit-or-rollback semantics, including that no references or iterators into
+   the container be invalidated if an operation fails.
+3. Nothrow guarantee: The function will not emit an exception under any circumstances.Overall exception safety
+   isn't possible unless certain functions are guarateed not to throw. In particular, we've seen that this is
+   true for destructors. Also needed for some helper functions, such as Swap().
+
+:Unserstand the basic, strong, and nothrow exception-safety guarantees.
+
+STLport makes the guarantee that no resources are leaked in the face of exceptions. This means:
+
+1. By the time a container's destructor completes:
+   It has returned all memory it has allocated to the appropriate deallocation function.
+   The destructor has been called for all objects constructed by the container.
+2. Algorithms destroy all temporary objects and deallocate all temporary memory even if the algorithm does not
+   complete due to an exception.
+3. Algorithms which construct objects (e.g. uninitialized_fill) either complete successfully or destroy any
+   objects that they have constructed at the time of the exception.
+4. Algorithms which destroy objects always succeed.
+
+** Overriding Virtual Functions
+: Make base class destructors virtual (unless you are certain that no one will ever attempt to delete a derived
+: bject through a pointer to base).
+
+To overload a function f() means to provide another function with the same name (f) in the same scope but with
+different parameter types. When f() is actually called, the compiler will try to pick the best atch based on
+the actual parameters that are supplied.
+
+To override a function f() means to provide another funtion with the same name (f) and the same parameter
+types in a derived class.
+
+To hide a function f() in an enclosing scope (base class, outer class, or namespace) means to provide another
+function with the same name (f) in an inner scope (derived class, nested class, or namespace), which will hide
+the same function name in an enclosing scope.
+
+** Item47 Control Flow
+The presence of a global variable should already put us on the lookout for clients that might try to use it
+before it has been initialized. The order of initialization for global variables (including class statics)
+between translation units is undefined.
+
+Guideline
+: Avoid using global or static objects. If  you must use a global or static object, always be very careful about
+: the order-of-initialization rules.
+
+全局变量在不同的编译单元间的初始化顺序是不确定的，所以使用时要注意。
+
+* Effective CPP
+** Chapter 3 Resource Management
+*** Item13 Use objects to manage resources
+
+By putting resources inside objects, we can rely on C++'s automatic destructor invocation to make sure that
+the resources are released.
+
+Many resources are dynamically allocated on the heap, are used only within a signle block or function, and
+should be released when control leaves that block or function. The standard library's auto_ptr is tailor-made
+for this kind of situation. auto_ptr is a pointer-like object (a smart pointer) whose destructor automatically
+calls delete on what it points to.
+
+: void f()
+: {
+:   std::auto_ptr<Investment> pInv(createInvestment());
+: 
+:   ......
+: 
+: }
+
+Resources are acquired and immediately turned over to resource-managing objects. Resources Acquisition Is
+Initialization, RAII.
+
+Resource-managing objects use their destructors to ensure that resources are released. Because destructors are
+called automatically when an object is destroyed (e.g., when an object goes out of scope), resources are
+correctly released, regardless of how control leaves a block.
+
+There never be more than one auto_ptr pointing to an object. Copying them sets them to null, and the copying
+pointer assumes sole ownership of the resource!
+
+: std::auto_ptr<Investment>                 // pInv1 points to the
+:  pInv1(createInvestment());              // object returned from
+:                                          // createInvestment
+: 
+: std::auto_ptr<Investment> pInv2(pInv1);   // pInv2 now points to the
+:                                          // object; pInv1 is now null
+: pInv1 = pInv2;                            // now pInv1 points to the
+:                                          // object, and pInv2 is null                                                                   
+
+This odd copying behavior, plus the underlying requirement that resources managed by auto_ptrs must never have
+more than one auto_ptr pointing to them, means that auto_ptrs aren't the best way to manage all dynamically
+allocated resources. For example, STL containers require that their contents exhibit "normal" copying
+behavior, so containers of auto_ptr aren't allowed.
+
+Reference-counting smart pointer (RCSP) is a smart pointer that keeps track of how many objects point to a
+particular resource and automatically deletes the resource when nobody is pointing to it any longer. As such,
+RCSPs offer behavior that is similar to that of garbage collection. Unlike garbage collection, however, RCSPs
+can't break cycles of references.
+
+tr1::shared_ptr is an RCSP.
+: 
+: void f()
+: 
+: {
+: 
+:  ...
+: 
+:  std::tr1::shared_ptr<Investment>
+:    pInv(createInvestment());             // call factory function
+: 
+:  ...                                     // use pInv as before
+: 
+: }                                         // automatically delete
+:                                          // pInv via shared_ptr's dtor
+
+This code looks almost the same as that employing auto_ptr, but copying shared_ptrs behaves much more
+naturally.
+
+: void f()
+: {
+:  ...
+: 
+:  std::tr1::shared_ptr<Investment>          // pInv1 points to the
+:    pInv1(createInvestment());              // object returned from
+:                                            // createInvestment
+: 
+:  std::tr1::shared_ptr<Investment>          // both  pInv1 and pInv2 now
+:    pInv2(pInv1);                           // point to the object
+:  pInv1 = pInv2;                            // ditto — nothing has
+:                                            // changed
+: 
+:  ...
+: 
+: }// pInv1 and pInv2 are destroyed, and the
+:  // object they point to is automatically deleted
+
+Both auto_ptr and tr1::shared_ptr use delete in their destructors, not delete[]. So using auto_ptr or
+tr1::shared_ptr with dynamically allocated arrays is a bad idea, though, regrettably, ont that will compile:
+
+: std::auto_ptr<std::string>                       // bad idea! the wrong
+:  aps(new std::string[10]);                       // delete form will be used
+: std::tr1::shared_ptr<int> spi(new int[1024]);    // same problem                                                                         
+
+
+Refer to boost, boost::scoped_array and boost::shared_array will do this.
+
+If you're releasing resources manually (e.g., using delete other than in a resource-managing class), you're
+doing something wrong.
+
+Things to Remember
+1. To prevent resource leaks, use RAII objects that acquire resources in their constructors and release them
+   in their destructors.
+2. Two commonly useful RAII classes are TR1::shared_ptr and auto_ptr. tr1::shared_ptr is usually the better
+   choice, because its behavior when copied is intuitive. Copying an auto_ptr sets it to null.
+*** Item14 Think carefully about copying behavior in resource-managing classes
+std::auto_ptr and tr1::shared_ptr are for heap-based resources. Not all resources are heap-based, however, and
+for such resources, smart pointers like auto_ptr and TR1::shared_ptr are generally inappropriate as resource
+handlers.
+
+What should happen when an RAII objects is copied?
+1. Prohibit copying. When copying makes no sense for an RAII class, you should prohibit it. derive from
+   boost::noncopyable will do that.
+2. Reference-cout the underlying resource. Sometimes it's desirable to hold on to a resource until the last
+   object using it has been destroyed. When that's the case, copying an RAII object should increment the count
+   of the number of objects referring to the resource, as boost::shared_ptr does.
+   Often, RAII classes can implement reference-counting copying behavior by containing a boost::shared_ptr
+   data member. booost::shared_ptr allows specification of a "deleter"- a function or function object to be
+   called when the reference count goes to zero. (This functionality does not exist for auto_ptr, which always
+   deletes its pointer.)
+3. Copy the underlying resource. Sometimes you can have as many copies of a resource as you like, and the only
+   reson you need a resource-managing class is to make sure that each copy is released when you're done with
+   it. In that case, copying the resource-managing object should also copy the resource it wraps, a deep copy.
+4. Transfer ownership of the underlying resource, just as auto_ptr does.
+
+Things to Remember
+1. Copying an RAII object entails copying the resource it manages, so the copying behavior of the resource
+   determines the copying behavior of the RAII object.
+2. Common RAII class copying behaviors are disallowing copying and performing reference counting, but other
+   behaviors are possible.
+
+
+* Tips
+** References
+
+[C++ Primer 3rd 3.6]
+
+引用有时候又称为别名(alias),它可以用作对象的另一个名字。其必须被初始化。
+
+: int ival = 1024;
+: 
+: int &rval = ival;
+: 
+: int &rval2; // error! must be initialized
+: 
+: int &rval = &ival; // error! rval's type is reference to int, not int *
+: 
+: int *pi = &ival;
+: 
+: int * &rpi = pi; // OK, rpi is a reference to int *
+
+引用一旦被定义就不能再指向其他对象(This is the reason it must be initialized).
+
+引用的所有操作实际上都是作用在它所指的对象上，包括取地址符。
+
+: int ival = 0;
+: int &rval = ival;
+: 
+: int k = rval; // assign ival's val to k
+: 
+: int *pi = &rval; // pi points to ival
+
+const引用可以使用不同类型的对象初始化，只要类型之间能够正确初始化，也可以是不能寻址的值，如文字常量， e.g.
+
+: double dval = 1.2;
+: 
+: //仅对const 引用合法
+: const int &ri = dval;
+: const int &rival2 = 1024;
+: const double &rd = dval + 1.4;
+
+引用在内部存放的是一个对象的地址，它是该对象的别名。对于不可寻址的值，如文字常量，以及不同种类的对象，编译器为
+了实现引用，必须生成一个临时对象，引用实际上指向该对象，但用户不能访问它。e.g.
+
+: double dval = 12.3;
+: const int &ri = dval;
+
+编译器将其转换为：
+
+: int tmp = dval;
+: const int &ri = tmp;
+
+如果此时我们给ri赋值(当然这是不行的，因为它是const int)， 改变的是tmp的值，而不是dval的值。这也就是为什么const
+引用可以这样使用的原因，因为它是const，不会暴露这样的问题，因为它是只读的。不允许非const引用指向需要临时对象的
+对象或值，一般来说，这比“允许定义这样的引用，但实际上不会生效”的方案要好得多。
+
+定义一个引用为const int的地址：
+
+: const int ival = 12;
+: 
+: const int * const &rpi = &ival;
+
+
+[cpp standard 2003]
+
+在标准中将reference type放到compound type 中
+
+3.9.2 Compound types
+
+Compound types can be constructed in the following ways:
+- arrays of objects of a given type
+- functions, which have parameters of given types and return void or references or objects of a given type
+- pointers to void ov objects or functions (including static members of classes) of a given type
+- references to objects or functions of a given type
+
+It is unspecified whether or not a reference requires storage.
+
+There shall be no references to references, no arrays of references, and no pointers to references. The
+declaration of a reference shall contain an initializer except when the declaration contains an explicit
+extern specifier, is a class member declaration within a class declaration, or is the declaration of a
+parameter or a return type; a reference shall be initialized to refer to a valid object or function. [Note: in
+particular, a null reference cannot exist in a well-defined progream, because the only way to create such a
+reference would be to bind it to the "object" obtained by dereferencing a null pointer, which causes undefined
+behaviour. As described in 9.6, reference can not be bound directly to a bit-field.]
+
+size of p79
+
+When applied to a reference or a reference type, the result is the size of the referenced type. When applied
+to a class, the result is the number of bytes in an object of that class incuding any padding required for
+placing objects of that type in an array. The size of a most derived class shall be greater than zero. The
+result of applying sizeof to a base class subobject is the size of the base class type. When applied to an
+array, the result is teh total number of bytes in the array. This implies that the size of an array of n
+elements is n times the size of an element.
+
+8.5.3 References
+
+A varaible declared to be a T&, that is "reference to type T", shall be initialized by an object or function,
+of type T or by an object that can be converted into a T.[Example:
+
+: int g(int);
+: void f()
+: {
+:    int i;
+:    int &r = i;   // r refers to i
+:    r = 1;        // the value of i becomes 1
+:    int *p = &r;  // p points to i;
+:    int &rr = r;  // rr refers to what r refers to, that is, to i
+:    int (&rg)(int) = g; // rg refers to the function g
+:    rg(i);        // calls function g
+:    int a[3];
+:    int (&ra][3] = a; // ra refers to the array a
+:    ra[1] = i;    // modiries a[1]
+: }
+
+--end example]
+
+A reference can not be changed to refer to another object after initialization. Note that initialization of a
+reference is treated very differently from assignment to it. Argument passing and function value return are
+initializations.
+
+The initializer can be ommitted for a reference only in a parameter delcaration, in the declaration of a
+function return type, int the declaration of a class member withn its class delcaration, and where the extern
+specifier is explicitly used.
+
+: int &r1; // error initializer missing
+: extern int &r2; // OK
+
+
+[SMTH C++ board]
+
+不存在指向空值的引用这个事实意味着使用引用的代码效率比使用指针的要高。因为在使用引用之前不需要检测它的合法性。
+
+: void printDouble(const double& rd)
+: {
+:    cout << rd; // 不需要测试rd，它一定指向一个double值
+: }
+: 
+: void printDouble(const double *pd)
+: {
+:    if(pd){ //检查是否为null
+:      cout << *pd;
+:    }
+: }
+
+
+当一个函数返回对象而不是引用的时候，返回值临时对象的生命周期延续到full-expr结束。
+由于引用在声明的时候必须立即初始化，因此由于const引用绑定到rvalue对象而产生的临时对象其生命周期将同引用一样长，
+因此也不会因为直接使用该引用而造成失效的对象被使用。
+
+The result of calling a function that does not return a reference is an rvalue.
+
+ilovecpp says:引入引用是运算符重载的要求
+
+* Modern C++ Design
+** Chapter 5 Generalized Funtors
+ generalized functors, a powerful abstraction that allows decoupled interobject
+ communication.
+
+Generalized functors are especially useful in designs that need requests to be
+stored in objects. The design pattern that describes encapsulated requests, and
+that generalized funtors follow, is Command.
+
+In brief, a generalized functor is any processing invocation that C++ allows,
+encapsulated as a typesafe first-class object. In a more detailed definition, a
+generalized functor
+1. Encapsulates any processing invocation because it accepts pointers to simple
+   functions, pointers to member functions, functors, and even other generalized
+   funtors--together with some or all of their respective arguments
+2. Is typesafe because it never matches the wrong argument types to the wrong
+   functions.
+3. Is an object with value semantics because it fully supports copying,
+   assignment, and pass by value. A generalized functor can be copied freely and
+   does not expose virtual member functions.
+
+Separating commands into active and forwarding is important for establishing the
+scope of a generic implementation. Active commands can not be canned--the code
+they contain is by definition application specific--but we can develop helpers
+for forwarding commands.
+
+Command offers double-ended flexibility. First, you can plug in new kinds of
+user interface elements without changing the application logic. Such a program
+is known as skinnable because you can add new "skins" without changing the
+design of the product itself. Skins do not encompass any architecture--they only
+provide slots for Commands and knowledge to fire them appropriately. Second, you
+can easily reuse the same user interface elements across different applications.
+
+: void f();
+: void (*pf)() = f;
+: (*pf)(); // call f()
+: pf(); // call f()
+
+The compiler offers a syntactic shortcut: (*pF)() is equivalent to
+pf(). However, (*pF)() is more suggestive of what actually happens--pf is
+dereferenced, and the function-call operator () is applied to the dereferenced
+pointer.
