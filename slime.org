@@ -1,0 +1,101 @@
+* Super Lisp Interaction Mode for Emacs (SLIME)
+SLIME由两部分组成
+   - 用Emacs Lisp实现得用户接口
+   - 用Common Lisp实现的supporting server program
+这两部分由一个socket连接并使用RPC-like的协议通信。
+** 安装
+Slime的安装非常简单。首先确保你已经正确安装了某个common lisp的实现(比如SBCL).比
+如我的SBCL:
+
+$ which sbcl
+/usr/bin/sbcl
+
+而slime被放在~/.emacs.d/site-lisp/slime下，下面的简单配置可以工作:
+
+(setq inferior-lisp-program "/usr/bin/sbcl")
+(add-to-list 'load-path "~/.emacs.d/site-lisp/slime/")
+(require 'slime)
+(slime-setup)
+
+`M-x slime'来运行SLIME. 此命令用`inferior-lisp' package来启动一个Lisp进程，loads
+and starts the Lisp-side server (known as "Swank"), and establish a socket
+connection between Emacs and Lisp. Finally a REPL buffer is created where you
+can enter Lisp expression for evaluation.
+** 基本配置
+** 多个Lisp实现
+默认情况下，命令`M-x slime'执行由变量`inferior-lisp-program'指定的程序。如果利用
+前缀参数调用此命令，Emacs提示用户它该执行的程序.
+** 常用快捷键
+SLIME的命令是由`slime-mode'提供的。
+*** 编译
+C-c C-c 
+M-x slime-compile-defun
+Compile the top-level form at point.
+
+C-c C-k
+M-x slime-compile-and-load-file
+Compile and load the current buffer's source file
+
+C-c M-k
+M-x slime-compile-file
+Compile (but don't load) the current buffer's source file
+
+C-c C-l
+M-x slime-load-file
+Load a list file.
+
+M-x slime-compile-region
+*** Evaluation
+C-x C-e
+M-x slime-eval-last-expression
+
+C-M-x
+M-x slime-eval-defun
+Evaluate the current toplevel form and show the result in the echo area..
+
+C-c C-r
+M-x slime-eval-region
+*** Finding definitions ("Meta-Point" Commands).
+The familiar `M-.' command is provided. For generic functions this commands
+finds all methods, and with some systems it does other fancy things (like
+tracing structure accessors to their `DEFSTRUCT' definition).
+
+`M-.'
+`M-x slime-edit-definition'
+Go to the definition of the symbol at point.
+
+`M-,'
+`M-*'
+`M-x slime-pop-find-definition-stack'
+Go back to the point where `M-.' was invoked. This gives multi-level
+backtracking when `M-.' has been used several times.
+*** Documentation commands
+The commands all share the common prefix `C-c C-d' and allow the final key to be
+modified or unmodified.
+
+`C-c C-d d'
+`M-x slime-describe-symbol'
+
+`C-c C-d f'
+`M-x slime-describe-function'
+
+`C-c C-d h'
+`M-x slime-hyperspec-lookup'
+Lookup the symbol at point in the `Common Lisp Hyperspec'.
+
+`C-c C-d ~'
+`M-x hyperspec-lookup-format'
+Lookup a _format character_ in the `Common Lisp Hyperspec'.
+
+`C-c C-d #'
+`M-x hyperspec-lookup-reader-macro'
+Lookup a _reader macro_ in the `Common Lisp Hyperspec'.
+*** Misc
+切换到REPL buffer: C-c C-z
+C-c M-o
+M-x slime-repl-clear-buffer
+
+C-c C-o
+M-x slime-repl-clear-output
+** SBCL
+制作core文件加速slime的启动过程，经过实验，效果非常明显

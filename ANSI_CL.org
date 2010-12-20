@@ -1,0 +1,59 @@
+* 前言
+The spirit of Lisp hacking can be expressed in two sentences. Programming should
+be fun. Programs should be beautiful.
+* Lexical scope
+Under lexical scope, a symbol refers to the variable that has that name in the
+context where the symbol appears. Local variables have lexical scope by default.
+* Dynamic scope
+With dynamic scope, we look for a variable in the environment where the function
+is called, not in the environment where it was defined. To cause a variable to
+have dynamic scope, we must declare it to be *special* in any context where it occurs.
+* Input/Output
+There are two kinds of streams, character streams and binary streams.
+** Streams
+*Streams* are Lisp objects representing sources and/or destination of
+characters.
+
+Always close a file when you are finished using it; nothing is guaranteed about
+its contents until you do.
+
+Remember to close a file when you are finished reading from it.
+
+* Symbols
+You can use symbols as data objects and as names for things.
+** Symbol names
+** Property Lists
+Every symbol has a property-list, or plist.
+
+Use get/setf to get/set a symbol's property.
+
+** Symbols are Big
+Symbols are created implicitly when we type their names, and when they are
+displayed the name is all we see.
+
+A symbol is a substantial object, more like the kind of structure that might be
+defined by defstruct. A symbol can have a name, a home package, a value as a
+variable, a value as a function, a property list.
+
+It's worth bearing in mind that symbols are real objects, and not just names.
+
+** Creating Symbols
+我们不但可以从一个symbol得到它的名字，也可以从名字得到symbol。
+
+Conceptually, packages are symbol-tables, mapping names to symbols. Every
+ordinary symbol belongs to a particular package. A symbol that belongs to a
+package is said to be interned in that package.
+
+Most symbols are interned when they are read. The first time you type the name
+of a new symbol, Lisp will create a new symbol object and intern it in the
+current package.
+
+Not all symbols are interned. It can sometimes be useful to have an uninterned
+symbol, for the same reason that it can be useful to have an unlisted phone
+number. Uninterned symbol are called gensyms.
+
+** Keywords
+
+Symbols in the keyword package (known as keywords) have two unique properties:
+they always evaluate to themselves, and you can refer to them anywhere simply
+as :x, instead of keyword:x.

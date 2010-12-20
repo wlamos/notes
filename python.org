@@ -1,0 +1,226 @@
+* Introduction
+** Why python?
+相比其他的脚本语言更容易维护，可读性更好，对软件的重用支持更好，比如面向对象编程
+作为解释型的语言相对与编译或静态类型语言，如c,c++,java，python可以大幅提高开发效率。用python写成的代码通常是对
+应cpp或java代码的1/3到1/5。开发人员可以写更少的代码，意味着更少的code时间，更少的代码需要debug，更少的代码需要
+去维护。python的代码立即执行，并不像其他有些语言要经过编译链接的过程。
+程序的可移植性，大部分的python程序不用进行任何改变就可以在绝大多数平台上run。
+库支持
+
+python崇尚的是一种最小方法，虽然针对一个问题有很多种解决方法，但是常常有一种明了的方法，还有一些不明显的方法。
+explicit is bettern than implicit, and simple is better than complex.
+** Is python a scripting language?
+Python是一种通用目的编程语言，面向对象的脚本语言。人们往往更喜欢称python脚本而不是python程序
+
+易用性
+
+缺点：执行速度比编译执行的语言如c，cpp慢
+
+目前标准的python实现中写好的python源代码会被编译为一种中间格式，称为字节码，然后解释字节码。字节码(byte code)
+提高了可移植性，因为它是一种平台无关的格式。但是，因为python不是编译为直接的二进制机器码，一些程序会run的比一
+个全部编译为可执行机器码的程序如c慢。
+
+看个人的需要，看是否python执行的效率可以忽略。事实上由于开发效率的提高带来的效益经常比执行速度的提高来的重要，
+尤其在今天机器的执行速度已经大大提高的情况下。但是仍然有部分领域着实需要优化的执行速度。
+
+python作为一种control language
+
+** What Can I Do with Python
+*** 系统编程
+python内置的对操作系统的接口使得用它来写系统管理工具非常理想。
+*** GUI
+** What are python's technical strengths?
+
+*** 它是面向对象的
+Python是一门面向对象的语言。它的类模型支持面向对象的高级特性，如多态，操作符重载，多重继承；此外在python的简单
+语法与类型下，oop很容易。
+
+Python 的oop特性使得它称为面向对象的系统语言的scripting tool的理想选择。例如，python programs can subclass
+(specialize) classes implemented in C++ or Java.
+
+*** 它是portable
+标准的python实现是用可移植的ANSI C实现的
+
+Python是一种混合物，它介于传统的脚本语言与系统开发语言之间。python提供了脚本语言的易用性与编译语言所具有的高级
+软件工具。
+
+动态类型，不需要实现声明变量的类型，直接使用变量
+
+强类型，尽管不用声明变量，但是一旦变量有了值，那么这个值是有类型的
+
+自动内存管理
+
+内置对象类型
+
+尤其是对那些不仅仅是作文本处理，在将来会被其他人读的代码，python比其他脚本语言更match。
+
+python里面的注释用#表示。
+
+2008-01-12 23:48:35 ann的python note看到1.4 列表类型，明天看完字符串类型，有点感觉了。明天把python 第二章看完
+
+* Python Interpreter
+解释器读入代码，执行代码中包含的指令。解释器是所写的python代码与机器之间的逻辑层。
+** tuple
+
+tuple是常量list，不能用pop，remove，insert等方法
+tuple用()表示
+tuple可以用下标返回元素或子tuple
+tuple可以用于多个变量的赋值
+表示只含有一个元素的tuple的方法为(1,)，用来跟单独的变量区分。
+
+tuple比list的性能好，也就是说不用提供动态内存管理的功能。
+
+** Sequence
+sequence 包括string，tuple，list。是一种线性structure，较为简单。它们都具有以下通用操作：
+1.in(seq)，判断某个对象在不在一个sequence中
+2.len(seq)
+3.seq[i]
+4.seq[start:end]
+5.用+连接sequence
+6.using * to repeat a sequence for some times
+7.list comprehension
+* Networking using python
+** Foundations
+*** Addressing
+serveral details that TCP must take care of
+1. a way to identify the remote machine, the unique IP address
+2. which application on the remote machine to commuicate with, port
+   number. Different applications use different port number.
+
+Each endpoint of a TCP connection is uniquely identified by an IP address and a
+port number.
+
+**** DNS
+
+When you want to establish a connection to a remote machine, you can ask DNS for
+the IP address corresponding to something like www.news.sohu.com. The DNS will
+give you an IP address and with that you can roceed to establish your
+connection.
+
+TCP is a *reliable* protocol, which means that, except in the case of a total
+network outage, your data should get through to the other end intact, complete,
+unmodified, and in the correct order.
+
+**** Router
+
+Devices on the Internet called routers receive packets and decide how to get
+them to their intended destination.
+
+**** Client/Server Model
+
+A server continually listens for requests form clients, and establishes
+connections to handle each one.
+
+The client is always the side that initiates the connection; the server just
+sits and waits until clients connect.
+
+**** Port Number
+***** Server-side
+Traditionally, on Linux or UNIX systems, only the root user is able to request a
+port number that's less that 1024.
+***** Client-side
+In general, the port number of a client is unimportant. Usually, the client will
+let the operating system pick a random port number. The server can work with
+whatever port number the client chooses.
+
+**** User Datagram Protocol
+which is used for sending very short messages from one system to another. It
+provides at most one guarantee: that the data that you receive will be intact.
+
+** Network Clients
+*** Creating Sockets
+generally a two-step process:
+1. create the actual socket object
+   In this step, you need to tell the system two things: 
+   a. the communication type : the underlying protocol used to transmit data
+   b. the protocol family : how data is transmitted
+2. connet it to the remote server
+
+For Internet communications, the communication type is almost always AF_INET
+(corresponding to IPv4). THe protocol family is typically either SOCK_STREAM for
+TCP communications or SOCK_DGRAM for UDP communications.
+
+For a TCP connection, creating a socket generally uses code like:
+
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+TO connect the socket, you'll generally need to provide a tuple containing the
+remote hostname or IP address and the remote port. Connecting a socket typically
+looks like this:
+
+s.connect(("www.sohu.com", 80))
+
+getservbyname() : query server port numbers
+
+The basic interface for network communication is the socket, which extends the
+operating system's basic I/O system to handle network communications.
+
+Given a socket, you can determine the IP address and port number of both the
+local and remote endpoints.
+
+** Network Servers
+
+steps
+1. Create the socket object
+2. Set the socket options (optional)
+3. Bind to a port (and, optionally, a specific network card)
+4. Listen for connections.
+
+*** Creating a Socket Object
+*** Binding the Socket
+claim a port number for the server, which is called binding.
+
+s.bind(('', 80))
+
+The first argument to bind() specifies the IP address that you wish to
+bind. It's generally left blank, which means "bind to all interfaces and
+addresses"
+
+*** Listening for Connections
+
+call listen(), which tells the operating system to perpare to receive
+connections. It takes a single parameter, which indicates how many pending
+connections the operating system should allow to remain in queue before the
+server actually gets around to processing them.
+
+putting in a generic error handler to make sure nothing slips through the
+cracks.
+
+should not terminate the server
+*** Using inetd or xinetd
+
+service more than one client at a time:
+1. user internal methods to handle many clients
+2. let something start up a new copy of the server for you each time a new
+   client connects
+** Domain Name Systemc (DNS)
+is a distributed database that's typically used to resolve hostnames into IP
+addresses.
+
+1. make it easier for humans to remember names 
+2. allow servers to change IP addresses and still be reached using the same name
+
+DNS is a massive, globally distributed database. It provides a series of
+referrals, each giving a more specific answer, until the final answer is
+obtained.
+
+** Advanced Network Operations
+*** Half-Open Sockets
+normally sockets are bidirectional--data can be sent across them in both
+directions.
+
+A socket that's unidirectional is said to be a half-open socket.
+
+socket.shutdown()
+
+using socket.shutdown() is to help make sure your code is correct.
+
+Leading Size Indicator
+
+network byte order , Before sending a binary integer, it's converted to network
+byte order. The receiving side converts it from network byte order to the local
+representation before using it.
+
+Broadcast data doesn't work with TCP; it's usually implemented with UDP.
+
+

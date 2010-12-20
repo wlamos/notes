@@ -1,0 +1,445 @@
+* Work Before Releasing
+** Using flyspell to check the documents, there should not be any typo.
+** Be careful to enviroment variable CPLUS_INCLUDE_PATH
+   Be sure the header files used in your program is the headers they should use.
+* Learn Notes
+** Emacs
+*** Org
+**** quote
+
+If a headline starts with the word 'QUOTE', the text below the headline will be typeset as fixed-width, to
+allow quoting of computer codes etc. Lines starting with ':' are also typeset in fixed-width font.
+:C-c : Toggle fixed-width for entry (QUOTE) or region
+
+**** insert image
+HTML export can inline images given as links in the Org-mode file, and it can make an image the clickable part
+of a link. By default36, images are inlined if a link does not have a description. So 
+:[[[[file:myimg.jpg]]]]
+will beinlined, while 
+:[[file:myimg.jpg][the image] ]
+will just produce a link `the image' that points to the image. If the description
+part itself is a file: link or a http: URL pointing to an image, this image will be inlined and activated so
+that clicking on the image will activate the link. For example, to include a thumbnail that will link to a
+high resolution version of the image, you could use:
+:[[file:highres.jpg][file:thumb.jpg] ]
+
+and you could use http addresses just as well. 
+*** Command
+:emacs -q : do not load an init file
+:emacs -u $user : load $user's init file
+** Development
+*** install script of a product
+Just use any one product in JEDA. Modify the install.sh, it's easy.
+*** using docbook to write product docs
+in cvs/documents
+*** ulimit
+* CPP
+** Don't try to return a reference when you must return an object.
+** Temporary objects
+
+Temporaries of class type are created in various contexts: binding an rvalue to a reference, returning an
+rvalue, a conversion that creates an rvalue, throwing an exception, entering a handler, and in some
+initializations. Even when the creation of the temporary object is avoided, all the semantic restrictions must
+be respected as if the temporary object was created.
+
+When an implementation introduces a temporary object of a class that has a non-trivial constructor, it shall
+ensure that a constructor is called for the temporary object. Similarly, the destructor shall be called for a
+temporary with a non-trivial destructor. Temporary objects are destroyed as the last step in evaluating the
+full-expression that (lexically) contains the point where they were created. This is true even if that
+evaluation ends in throwing an exception.
+
+There are two contexts in which temporaries are destroyed at a different point that the end of the full
+expression. The first context is when an expression appears as an initializer for a declarator defining an
+object. In that context, the temporary that holds the result of the expression shall persist until the
+object's initialization is complete. The object is initialized from a copy of the temporary.; during this
+copying, an implementation can call the copy constructor many times; the temporary is destroyed after it has
+been copied, before or when the initialization completes. If many temporaries are created by the evaluation of
+the initializer, the temporaries are destroyed in reverse order of the completion of their construction.
+
+The second context is when a reference is bound to a temporary. The temporary to which the reference is bound
+or the temporary that is the complete object to a subobject of which the temporary is bound persists for the
+lefetime of the reference except as specified below.
+
+** pair
+
+The following is from [cpp standard 2003]
+
+: template <class T1, class T2>
+: struct pair {
+:   typedef T1 first_type;
+:   typedef T2 first_type;
+
+:   T1 first;
+:   T2 second;
+:   pair();
+:   pair(const T1 &x, const T2 &y);
+:   template<class U, class V> pair(const pair<U, V> &p);
+: };
+
+it holds two objects, and all the members and methods are pulic.
+
+** header file
+
+Don't put any function definition in the header file. Putting template funcitons is ok.
+
+** pointers and reference using const
+: const int *p; // only means we can not using p to modify the object it point to, we don't know what kind of
+:              //object if point to, maybe int, maybe const int
+
+
+:    int i = 4;
+:    const int *pi = &i;
+:    cout << "*pi:" << *pi << endl; // output 4
+:
+:    i = 6;
+:    cout << "*pi:" << *pi << endl; // output 6
+:
+:
+:    const int ci = 100;
+:    const int *pci = &ci;
+:    cout << "*pci:" << *pci << endl; // output 100
+:    ci = 4;  // error
+:    *pci = 4;// error
+
+error message:
+
+: [zhangwl@localhost refer]$ g++ test.cpp -o test
+: test.cpp: In function `int main()':
+: test.cpp:57: assignment of read-only variable `ci'
+: test.cpp:58: assignment of read-only location
+
+: const int * const p; // p's value is const, we can not use it to modify the object it point to
+
+because it's a const, so must be initialized.
+:
+:    int i = 6;
+:    const int * const ccp = &i;
+:    cout << "*pi:" << *pi << endl; //output 6
+:
+:    i = 8;
+:    cout << "*pi:" << *pi << endl; //output 8
+
+
+** Treat class design as type design. Item 19 Effective C++
+
+How do you design effective classes? First, you must understand the issues you face. Virtually every class
+requires that you confront the following questions, the answers to which often lead to constraints on you
+design.
+
+1. How should objects of your new type be created and destroyed? How this done influences the design of your
+   class's constructor and destructor, as well as its memory allocation and deallocation functions. (operator
+   new, operator new [], operator delete, and operator delete []).
+
+2. How should object initialization differ from object assignment? The answer to this question determines the
+   behavior of and the differences between your constructors and your assignment operators.
+
+3. What does it mean for objects of your new type to be passed by value? Can it be put to a container? The
+   copy constructor defines how pass-by-value is implemented for a type.
+
+4. What are the restrictions on legal values for your new type?
+
+5. Does your new type fit into an inheritance graph? If you inherit from existing classes, you are constrained
+   by the design of those classes, particularly by whether their functions are virtual or non-virtual. If you
+   wish to allow other classes to inherit from your class, that affects whether the functions you declare are
+   virtual, especially your constructor.
+
+6. What kink of type conversions are allowed for your new type?
+
+7. What standard functions should be disallowed? Those are the one you'll need to declare private
+
+8. Who should have access to the members of your new type? public, protected or private? friends? or nest one
+   class in another?
+
+** Misc 
+pair
+to use pair, #include <utility>
+
+use typedef in complicate pair:
+
+: typedef pair<string, string> str_pair;
+: 
+: make_pair("string", "china");
+
+* GDB
+** Misc
+C-x SPACE : set a breakpoint at the current line
+* Boost
+** Boost.Random
+   It's thread safe as long as you don't try to share the same object between different threads.
+   Boost.random does not maintain global state that would need protection from multi-threading.
+
+   Boost.random is thread-safe as long as you don't access any given object from two threads
+   simultaneously. (Accessing two different objects is ok, as long as they don't share an engine).
+   If you require that kind of safety, it's trivial to roll that on your own with an appropriate mutex
+   wrapper.
+* Shell Programming
+** Job
+"Doing more than one thing at a time" means running more than one program at the same time. You do this when
+you invoke a pipeline.
+
+Using & to run a command in the background. 
+Check on background jobs with the command *jobs*.
+
+Jobs you put in the background should not do I/O to your terminal. If you want to run a job in the background
+that expects standard input or produces standard output, you usually want wo redirect the I/O so that it comes
+from or goes to a file.
+
+** Special Characters and Quoting
+** Command line edit
+.bash_history in home directory records commands that you type into the shell. 
+
+: [zhangwl@localhost zhangwl]$ echo $HISTFILE
+: /jeda/home/zhangwl/.bash_history
+
+Whenever you enter a command,  you are telling the shell to run that command in a subprocess, and some coplex
+programs may start their own subprocesses.
+
+two ways to run a shell script
+1. using source command, this causes the commands in the script to be read and run as if you typed them in.
+2. using the script file's name.
+
+** Functions
+
+A function is sort of a script-within-a-script, you use it to define some shell code by name and store it in
+the shell's memory, to be invoked and run later.
+
+The shell predefines some environment variables when you log in.
+positional parameters: hold the command-line arguments to scripts when they are invoked. Positional parameters
+have the names 1, 2, 3, etc., meaning that their values are denoted by $1, $2, $3, etc. There is also a
+positional parameter 0, whose value is the name of the script.
+
+Two special variables contain all of the positional parameters (except positional parameter 0): * and @.
+
+"$*" is a single string that consists of all of the positional parameters, separated by the first character in
+the value of the environment variable IFS.
+"$@" is equal to "$1" "$2" "$3"..."$N", where N is the number of positional parameters. That is, it's equal to
+N separate double-quoted strings, which are separated by spaces.
+
+Vairable # holds the number of positional parameters (as a character string). 
+
+All of these varaibles are "read-only".
+
+Variables defined within functions are not local, they are global, meaning that their values are known
+throughout the entire shell script.
+
+** Local variables in Functions
+A local statement inside a function definition  makes the variables involved all become local to that
+function. 
+
+* Transaction-based Verification
+** What is transaction-based verifications
+A transaction is a single conceptual transfer of high-level data or control. It is defined by its begin time,
+end time, and all the relevant information associated with the transaction. This information is stored with
+the transaction as its attributes..
+
+Transaction-Based Verification (TBV) enables the use of transactions at each phase of the verification
+cycle. The transaction level is the level at which the intended functionality of the design is specified 
+* SystemC
+** Blocking and Nonblocking
+   In SystemC, there are two basic kinds of processes: SC_THREAD andSC_METHOD. The key difference between the
+   two is that it is possible to suspend an SC_THREAD by calling wait(). SC_METHODs, on the other hand, can
+   only be synchronized by making them sensitive to an externally defined sc_event. Calling wait() inside an
+   SC_METHOD leads to a runtime error. Using SC_THREAD is in many ways more natural, but is is slower because
+   wait() induces a context switch in the SystemC scheduler. Using SC_METHOD is more constrained but more
+   efficent, because it avoids the context switching.
+
+   Because there will be a runtime error if we call wait from inside an SC_METHOD, every method in every
+   interface needs to clearly tell the user whether it may contain a wait() and there fore must be called from
+   an SC_THREAD, or if it is guaranteed not to contain a wait() and therefore can be called from an
+   SC_METHOD. OSCI uses the terms blocking for the former and nonblocking for the latter.
+
+** Some Terminologies
+   | AV   | Architect's View           |
+   | AVF  | Architect's View Framework |
+   | ESL  | Electronic System Level    |
+   | FV   | Functional View            |
+   | GIPL | Generic IP Library         |
+   | IP   | Intellectual Property      |
+   | IPE  | Interrupt-Priority Encoder |
+   | ISS  | Instruction-Set Simulator  |
+   | VV   | Verification View          | 
+
+
+In the transaction-level model(TLM), the details of communication among computation components are separated
+from the details of the implementation of computation components. Communication is modelled as channels and
+transaction requests take place by calling interface functions of these channel models. Unnecessary details of
+communication and computation are hidden in the TLM and may be worked out later.
+* Coware
+** SystemC IDE
+1. source setup.sh
+: [zhangwl@localhost linux]$ pwd
+: /jeda/opt/rhel3/coware/V2007.1_beta/V2007.1.0_Beta/PAMD/linux
+: [zhangwl@localhost linux]$ lf
+: 3rdparty/                 dmtools/  ModelDesigner.csh  orig-setup.sh          scide/     setup/       sv/                          xercesc/
+: ccache/                   gnu/      ModelDesigner.sh   pc/                    scsh/      setup.csh    tools/
+: CoCheck/                  IP@       novas/             PlatformArchitect.csh  scviewer/  setup-impl/  virtualplatform/
+: common/                   java1.5/  orig-setup/        PlatformArchitect.sh   scwizard/  setup.sh     VirtualPlatformDesigner.csh
+: create_setup_scripts.sh*  license/  orig-setup.csh     plugins/               sd/        spirit/      VirtualPlatformDesigner.sh
+: [zhangwl@localhost linux]$ . setup.sh
+: 
+Setup is complete for CoWare Model Designer
+
+Use '. setup.sh -pa'  for CoWare Platform Architect
+
+2. The set-up script selects the gcc-3.4.4 compiler by assigning a value to the COWARE_CXX_COMPILER environment
+   variable. You can override this selection by setting the variable to gcc-3.2.3 before you source the set-up
+   script. No other compilers are currently supported. 
+
+: [zhangwl@localhost linux]$ echo $COWARE_CXX_COMPILER
+: gcc-3.4.4
+: [zhangwl@localhost linux]$ export COWARE_CXX_COMPILER=gcc-3.2.3
+: [zhangwl@localhost linux]$ echo $COWARE_CXX_COMPILER
+: gcc-3.2.3
+
+3. now start SystemC IDE
+: [zhangwl@localhost linux]$ scide &
+* Debian
+** evince can not work with Chinese properly
+Solution : install chinese fonts for envince
+: sudo apt-get install cmap-adobe-gb1 gsfonts-x11 xpdf-chinese-simplified xpdf-common
+* Redhat Enterprise 3
+** redhat-config-packages --isodir=/mnt/hda5 Install softwares from ISO file.
+** reconfig xserver
+: redhat-config-xfree86 --reconfig
+
+Maybe all the system configuration commands in RHEL3 are all prefixed by
+redhat-config-
+
+* Constraint Based Verification
+** Chapter 1
+Simply put, it is not feasible to design every transistor from the ground up in today's
+multi-million-transistor chips. Instead, in-house or third-party Intellectual Properties (IPs) are reused, and
+designs are beginning to be done at the system and integration levels. The result is a complex system that may
+containbi tens of IPs. This trend of IP reuse and integration will soon transform the SoC into a
+Network-on-Chip(NoC), where a single chip holds a "sea of processors" connected by networks.
+
+*** The Verification Crisis
+Verification complexity grows super-linearly with design size
+The increased use of software, which has intrinsically higher verification complexity.
+Shortened time-to-market
+Higher cost of failure (low profit margin)
+
+Still, empirical study has shown that doubling the design size doubles not only the amount of verification
+effort per clock cycle but also the number of cycles required to reach acceptable coverage. Roughly speaking,
+this results in a verification complexity that is Moore's Law squared.
+
+The most direct response would be to enhance the capacity of the underlying verification methods. Faster
+simulation, emulation, and static verification all fall into this category.
+
+A second response would be to incorporate the methodology changes made possible by advances in technology. The
+most prominent examples are constrained random simulation in testbench automation, and assertion-based
+verification using both static (formal) and dynamic (simulation) methods. 
+
+The third response would be to shift wo a higher abstraction level for design and verification, as evident in
+the recent advance of behavior synthesis and transaction level modeling. Last but not lease, the enhancement
+and creation of design and verification languages will play an indispensable role in facilitating all of the
+previously mentioned advances.
+
+*** Design Modeling and Verification
+*** Simulation
+
+Simulation checks whether the design exhibits the proper behavior as elicited by a series of functional
+tests. More specifically, simulation consists of four major tasks:
+1. Generating the functional tests
+2. Executing the test stimulus on the design
+3. Determining if the design behavior satisfies its specification during the execution
+4. Collecting coverage statistics.
+
+The 2nd task, execution, is performed by a simulator. The other three tasks are performed by a testbench.
+
+**** Simulators
+HEL simulators can be event-driven, cycle-based, or a hybrid of both. An event is a transition of a logic
+signal, which in trun may cause another event to happen later. An event-driven simulator both schedules and
+executes events. Due to the dynamic nature of scheduling, event-driven simulation can model delays,
+asynchronous imputs, and feedbacks.
+
+A cycle-based simulator samples signals only at specific points in time. Usually these points are the clock
+edges in synchronous designs.
+
+State-of-the-art simulators are usually a mixture of event-driven and cycle-based simulation. 
+
+**** Testbench
+**** Test Generation
+directed and random
+
+Directed tests are developed manually in order to exercise specific scenarios corresponding directly to the
+functionalities being tested. These tests are typically deterministic and closely coupled with the DUV,
+resulting in poor reusablity.
+
+Random test generation compensates for the inflexibility of directed tests by randomizing the generation
+subjected to the satisfaction of the DUV's interface protocol, as well as, possibly, test directives steering
+the generation to desired scenarios.
+
+**** Checking Strategies
+Two ways to check whether the simulation results conform to the functional specification.
+1. reference-model based : a reference model runs in parallel with the DUV, and the outputs of both are compared
+2. monitor-based : the confirmation of the specification is observed by a set of monitored properties being
+   true during the simulation
+
+**** Coverage
+the lack of good metrics able to gauge the quality of generated tests, or, in other words, the completeness of
+the verification.
+
+code coverage, functional coverage
+
+Functional coverage asks whether or not certain design behaviors have been observed. Design behavior can be
+defined at multiple levels.
+System level : the interaction of functional components and product functionalities.
+Unit level: transactions between bus masters and slaves
+Implemetation level: all of the details that form the basis of correct behavior at the unit and system levels.
+
+A typical industry practice is to first simulate the design with a relatively small set of manually created
+directed tests, followed by simulating with random vectors for as long as is feasible.
+
+*** Constraints, Assertions, and Verification
+Constraints and assertions are two faces of the same coin. Both are formal and unambiguous specifications of
+behaviors and aspects of a design.
+
+While assertions refer to the properties to be verified, constraints refer to the conditions required for a
+verification. Assertion in one verification may become constraints in another, and vice
+versa. "assume-and-guarantee"
+
+Constrained random simulation
+assertion-based verifcation
+**** Constrained Random Simulation
+Constrained random simulation is a key element in testbench automation, itself one of the main aspects of the
+recent move to high level design and verification.
+
+A testbench is the driver of a simulation. It is used to inject inputs into a design, possibly reacting to the
+design's outputs, or to monitor the outputs of the design. Constrained random simulation relies on a
+constraint-based testbench. Constraints are formal interface specifications. These constraints can take
+several forms such as Boolean formuas whose variables reference inputs and state bits in the design or in
+auxiliary finite state machines, or in the form of temporal logic expressions. Constraints are executable
+through constraint solving. This fulfills an important requirement for constraints to function as a testbench.
+
+A key to the success of constrained random simulation is the constraint solving efficiency.
+
+The generator must solve the constraints every clock cycle very quickly.
+**** Assertion-based Verification
+
+combines assertions, formal verification and simulation, and offers the following advantages:
+It leverages power of formal verification
+It provides a framework for hybrid simulation and formal verification
+It facilitates IP reuse
+With the ability to monitor internal signals and catch violations locally, it improves observability and
+debugging.
+
+*** A Composite Verification Strategy
+testbench automation and assertion-based verification
+* Modern CPP Design
+** Type Traits
+Traits are a generic programming technique that allows compile-time decision to
+be made based on types, much as you would make runtime decisions based on
+values. By adding the proverbial "extra level of indirection" that solves many
+software engineering problems, traits let you take type-related decisions
+outside the immediate context in which they are made. This makes the resulting
+code cleaner, more readable, and easier to maintain.
+
+Certain traits are applicable to any type. 
+* Other
+xNor为同或运算， xOr为异或运算，两者为非的关系。
+xNor在两者相同时为1，不同时为假
+xOr在两者中仅有一个取值为1的时候才为真
+
+在SCV中将x<=y表示为
+(!(x & y)) | x.xNor(y)，这个是为什么？

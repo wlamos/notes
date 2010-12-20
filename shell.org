@@ -1,0 +1,101 @@
+
+* bash Basics
+
+Generally speaking, a shell is any user interface to the UNIX operating system.
+
+** What is a shell?
+
+The shell's job is to translate the user's command lines into operating system instructions. You input a
+command like:
+:ls -l | sort
+
+Shell will break up the line into words, determine the purpose of each word, set up the I/O according to > or
+some standard, implicit instructions, and fine the commands and run it with the options and arguments. 
+
+Remember that the shell itself is not UNIX-just the user interface to it.
+
+** Bash
+
+Two ways to use bash:
+
+1. a user interface
+2. a programming enviroment
+
+$SHELL can tell you which shell you are using.
+
+Command in my CentOS5 to find out where bash is:
+
+: which bash
+: whereis bash
+: grep bash /etc/passwd | awk -F: '{print $7}' | sort -u
+
+use *chsh* to change your login shell.
+
+** Commands, Arguments and options
+
+The first word on the line is the command. The rest are arguments (also called parameters) to the command. An
+option is a special type of argument that gives teh command specific infomation on what it is supposed t
+do. Options usually consist of a dash followed by a letter.
+
+** Files
+
+Three types are by far the most important:
+
+1. Regular files
+2. Executable files
+3. Directories
+
+: cd - #change to whatever directory you were n before the current one
+
+*** Filenames, wildcards
+
+Filenames are so important in UNIX that the shell provides a built-in way t specify the pattern of a set of
+filenames without having to know all of the names themselves. You can use special characters, called
+wildcards, in filenames to turn them into patterns.
+
+: ?  Any single character
+: *  Any string of characters
+: [set] Any character in set
+: [!set] Any character not in set
+
+There is nothing special about the dot (.) in UNIX filenames (aside from the leading dot, which "hides " the
+file); it's just another character.
+
+:ls * # list all files in the current directory
+:ls *.* # only list those that have at least one dot in the middle of the name
+
+wildcard expansion.
+
+The commands that you run only see the results of wildcard expansion
+The command will see the filenames just as if they were all typed in individually.
+
+*** Brace expanision
+echo a{b,c,d}e
+will get
+abe ace ade
+** Input and Output
+The UNIX I/O scheme is based on two dazzlingly simple ideas. 
+1. UNIX file I/O takes the form of arbitrarily long sequences of characters.
+2. everything on the system that produces or accepts data is treated as a file, this includes hardware devices
+   like disk drives and terminals.
+
+*** Standard I/O
+
+Each program that you invoke has all three standard I/O channels set to your terminal or workstation, so that
+standard input is your keyboard, and standard output and error are your screen or window.
+
+When necessary, you can redirect input and output to come from or go to a file instead. 
+
+Poputar UNIX data filering utilities
+
+: cat        copy input to output
+: grep       search for strings in the input
+: sort       sort lines in the input
+: cut        extract columns from input
+: set        perform editing operations on input
+: tr         translate characters in the input to other characters
+
+*** I/O Redirection
+
+using < >
+pipeline : redirect the output of a command into the standard input of another command. |
