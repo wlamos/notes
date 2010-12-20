@@ -2,3 +2,5 @@
 ** TODO GNUS mail template project
 ** TODO Integrate one-key with wl-compile
 ** TODO GSR major mode
+** TODO GNUS + kindle plugin
+   Email buffers/files to a kindle account
