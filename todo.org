@@ -2,6 +2,7 @@
 ** TODO GNUS mail template project
 ** TODO Integrate one-key with wl-compile
 ** TODO GSR major mode
+** TODO Enhance cn-weather according to ahei's request
 ** TODO GNUS + kindle plugin
    Email buffers/files to a kindle account
 ** DONE Integrate cvs-examine/magin-status/svn-examine using one-key
