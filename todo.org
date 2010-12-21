@@ -1,6 +1,7 @@
 * Emacs
 ** TODO GNUS mail template project
-** TODO Integrate one-key with wl-compile
+** DONE Integrate one-key with wl-compile
+   CLOSED: [2010-12-21 Tue 22:47]
 ** TODO GSR major mode
 ** TODO Enhance cn-weather according to ahei's request
 ** TODO GNUS + kindle plugin
