@@ -4,6 +4,10 @@
    CLOSED: [2010-12-21 Tue 22:47]
 ** TODO GSR major mode
 ** TODO Enhance cn-weather according to ahei's request
+** TODO Check rot13 related functions
+** TODO check whether there are functions that revert buffers according to mode
+   - used in dired mode, mark some buffers, and revert them all.
+   - revert all buffers
 ** TODO GNUS + kindle plugin
    Email buffers/files to a kindle account
 ** DONE Integrate cvs-examine/magin-status/svn-examine using one-key
