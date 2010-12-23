@@ -10,6 +10,7 @@
    - revert all buffers
 ** TODO GNUS + kindle plugin
    Email buffers/files to a kindle account
+** TODO Set grep so that backup files are excluded
 ** DONE Integrate cvs-examine/magin-status/svn-examine using one-key
    CLOSED: [2010-12-21 Tue 13:42]
    - State "DONE"       from "TODO"       [2010-12-21 Tue 13:42]
