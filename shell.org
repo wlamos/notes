@@ -1,4 +1,3 @@
-
 * bash Basics
 
 Generally speaking, a shell is any user interface to the UNIX operating system.
@@ -7,7 +6,7 @@ Generally speaking, a shell is any user interface to the UNIX operating system.
 
 The shell's job is to translate the user's command lines into operating system instructions. You input a
 command like:
-:ls -l | sort
+: ls -l | sort
 
 Shell will break up the line into words, determine the purpose of each word, set up the I/O according to > or
 some standard, implicit instructions, and fine the commands and run it with the options and arguments. 
@@ -21,7 +20,7 @@ Two ways to use bash:
 1. a user interface
 2. a programming enviroment
 
-$SHELL can tell you which shell you are using.
+*$SHELL* can tell you which shell you are using.
 
 Command in my CentOS5 to find out where bash is:
 
@@ -61,8 +60,8 @@ wildcards, in filenames to turn them into patterns.
 There is nothing special about the dot (.) in UNIX filenames (aside from the leading dot, which "hides " the
 file); it's just another character.
 
-:ls * # list all files in the current directory
-:ls *.* # only list those that have at least one dot in the middle of the name
+: ls * # list all files in the current directory
+: ls *.* # only list those that have at least one dot in the middle of the name
 
 wildcard expansion.
 
@@ -70,9 +69,9 @@ The commands that you run only see the results of wildcard expansion
 The command will see the filenames just as if they were all typed in individually.
 
 *** Brace expanision
-echo a{b,c,d}e
+=echo a{b,c,d}e=
 will get
-abe ace ade
+=abe ace ade=
 ** Input and Output
 The UNIX I/O scheme is based on two dazzlingly simple ideas. 
 1. UNIX file I/O takes the form of arbitrarily long sequences of characters.
@@ -97,5 +96,72 @@ Poputar UNIX data filering utilities
 
 *** I/O Redirection
 
-using < >
-pipeline : redirect the output of a command into the standard input of another command. |
+=using < >=
+pipeline : redirect the output of a command into the standard input of another
+command. |
+** Job
+   "Doing more than one thing at a time" means running more than one program at the same time. You do this when
+you invoke a pipeline.
+
+Using & to run a command in the background. 
+Check on background jobs with the command *jobs*.
+
+Jobs you put in the background should not do I/O to your terminal. If you want to run a job in the background
+that expects standard input or produces standard output, you usually want wo redirect the I/O so that it comes
+from or goes to a file.
+** Command line edit
+.bash_history in home directory records commands that you type into the shell. 
+
+: [zhangwl@localhost zhangwl]$ echo $HISTFILE
+: /jeda/home/zhangwl/.bash_history
+
+Whenever you enter a command,  you are telling the shell to run that command in a subprocess, and some coplex
+programs may start their own subprocesses.
+
+two ways to run a shell script
+1. using source command, this causes the commands in the script to be read and run as if you typed them in.
+2. using the script file's name.
+** Functions
+
+A function is sort of a script-within-a-script, you use it to define some shell code by name and store it in
+the shell's memory, to be invoked and run later.
+
+The shell predefines some environment variables when you log in.
+positional parameters: hold the command-line arguments to scripts when they are invoked. Positional parameters
+have the names 1, 2, 3, etc., meaning that their values are denoted by $1, $2, $3, etc. There is also a
+positional parameter 0, whose value is the name of the script.
+
+Two special variables contain all of the positional parameters (except positional parameter 0): * and @.
+
+"$*" is a single string that consists of all of the positional parameters, separated by the first character in
+the value of the environment variable IFS.
+"$@" is equal to "$1" "$2" "$3"..."$N", where N is the number of positional parameters. That is, it's equal to
+N separate double-quoted strings, which are separated by spaces.
+
+Vairable # holds the number of positional parameters (as a character string). 
+
+All of these varaibles are "read-only".
+
+Variables defined within functions are not local, they are global, meaning that their values are known
+throughout the entire shell script.
+
+** Local variables in Functions
+A local statement inside a function definition  makes the variables involved all become local to that
+function. 
+
+#+TITLE:     Shell Learning Notes
+#+AUTHOR:    Zhang Wenliang
+#+EMAIL:     wlamos@gmail.com
+#+DATE:      2010-12-23 Thu
+#+DESCRIPTION: 
+#+KEYWORDS: 
+#+LANGUAGE:  en
+#+OPTIONS:   H:3 num:t toc:t \n:nil @:t ::t |:t ^:t -:t f:t *:t <:t
+#+OPTIONS:   TeX:t LaTeX:t skip:nil d:nil todo:t pri:nil tags:not-in-toc
+#+INFOJS_OPT: view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
+#+EXPORT_SELECT_TAGS: export
+#+EXPORT_EXCLUDE_TAGS: noexport
+#+LINK_UP:   
+#+LINK_HOME: 
+#+XSLT: 
+
