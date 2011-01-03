@@ -1,0 +1,14 @@
+* Introduction Number Systems and Conversion
+** Digital Systems and Switching Circuits
+   Many of a digital systems's subsystems take the form of a switching
+   circuit. A switching circuit has one or more inputs and one or more outputs
+   which take on *discrete* values. In this text, we will study two types of
+   switching circuits--combinational and sequntial. In a combinational circuit,
+   the output values depend only on the present value of the inputs and on past
+   values. In a sequential circuit, the outputs depend on both the *present* and
+   *past* input values. In other words, in order to determine the output of a
+   sequential circuit, a sequence of input values must be specified. The
+   sequential circuit is said to have *memory* because it must "remember"
+   something about the past sequence of inputs while a combinational circuit has
+   no memory. In general, a sequential circuit is composed of a combinational
+   circuit with added memory elements.
