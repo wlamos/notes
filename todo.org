@@ -14,3 +14,5 @@
 ** DONE Integrate cvs-examine/magin-status/svn-examine using one-key
    CLOSED: [2010-12-21 Tue 13:42]
    - State "DONE"       from "TODO"       [2010-12-21 Tue 13:42]
+* Blog
+  from rivercoolcool new ip 72.167.232.143
