@@ -1,5 +1,10 @@
 * Emacs
 ** TODO GNUS mail template project
+** DONE look-mode + eimp + dired
+   CLOSED: [2011-01-11 Tue 21:46]
+   when look a file, using d to mark for deletion in the dired mode.
+   In dired-mode, using M-l can look all the files. Using M-m/M-r we can mark,
+   rename current looked files. So there is no need to implement this item.
 ** DONE Integrate one-key with wl-compile
    CLOSED: [2010-12-21 Tue 22:47]
 ** TODO Emacs + fetion + sms-bbdb
@@ -19,4 +24,4 @@ I find using auto-revert-mode is OK.
    CLOSED: [2010-12-21 Tue 13:42]
    - State "DONE"       from "TODO"       [2010-12-21 Tue 13:42]
 * Blog
-  from rivercoolcool new ip 72.167.232.143
+** TODO A blog about how to use look-mode and eimp
