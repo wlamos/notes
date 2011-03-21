@@ -1,0 +1,10 @@
+* Tips
+** Modify the mod key
+   By default the mod key is Right-Alt, which results in conflicts with Emacs,
+   so it's better to use Super key. Add the following to xmonad.hs
+
+import XMonad
+
+main = xmonad $ defaultConfig { modMask = mod4Mask }
+
+** Using gtk-chtheme to change the themes
