@@ -37,22 +37,22 @@ main = do
    
    
 ** .xmobarrc
-   Config { font = "-misc-fixed-*-*-*-*-13-*-*-*-*-*-*-*"
+   Config { font = "xft:-misc-fixed-*-*-*-*-13-*-*-*-*-*-*-*"
        , bgColor = "black"
        , fgColor = "grey"
        , position = TopW L 85
        , commands = [ Run Network "eth0" ["-L","0","-H","32","--normal","green","--high","red"] 10
                     , Run Cpu ["-L","15","-H","50","--normal","green","--high","red"] 10
-                    , Run Memory ["-t","Mem: %"] 10
+                    , Run Memory ["-t","Mem: <usedratio>%"] 10
                     , Run Swap [] 10
                     , Run Date "%a %b %_d %Y %H:%M:%S" "date" 10
                     , Run StdinReader
                     ]
        , sepChar = "%"
        , alignSep = "}{"
-       , template = "%StdinReader% }{ %cpu% | %memory% * %swap% | %eth0% | %date%"
+       , template = "%StdinReader% }{ %cpu% | %memory%  %swap% | %eth0% | %date%"
        }
-** xmonad.start
+** xmonad.start (adjust the height for xft fonts)
 #!/bin/bash
 
 #xrdb -merge .Xresources
@@ -68,9 +68,9 @@ trayer --edge top --align right --SetDockType true --SetPartialStrut true --expa
 #   gnome-power-manager
 #fi
 
-#if [ -x /usr/bin/nm-applet ] ; then
-#   nm-applet --sm-disable &
-#fi
+if [ -x /usr/bin/nm-applet ] ; then
+   nm-applet --sm-disable &
+fi
 
 kmix --keepvisibility
 
@@ -84,8 +84,83 @@ Do remember to chmod + x after creating xmonad.start
 Encoding=UTF-8
 Name=XMonad
 Comment=Lightweight tiling window manager
-Exec=xmonad
-#Exec=xmonad.start
+#Exec=xmonad
+Exec=xmonad.start
 Icon=xmonad.png
 Type=XSession
+** change wallpapers using nitrogen:
+   nitrogen --set-tiled ~/share/wallpapers/189fe813dacb594ccb80c41f.jpg
+* Some other guys' config file
+** Sajansse
+{-# OPTIONS_GHC -fno-warn-missing-signatures #-}
+module XMonad.Config.Sjanssen (sjanssenConfig) where
 
+import XMonad hiding (Tall(..))
+import qualified XMonad.StackSet as W
+import XMonad.Actions.CopyWindow
+import XMonad.Layout.Tabbed
+import XMonad.Layout.HintedTile
+import XMonad.Layout.NoBorders
+import XMonad.Hooks.DynamicLog
+import XMonad.Hooks.ManageDocks
+import XMonad.Hooks.ManageHelpers (isFullscreen, doFullFloat)
+import XMonad.Hooks.EwmhDesktops
+import XMonad.Prompt
+import XMonad.Actions.SpawnOn
+import XMonad.Util.SpawnOnce
+
+import XMonad.Layout.LayoutScreens
+import XMonad.Layout.TwoPane
+
+import qualified Data.Map as M
+
+sjanssenConfig =
+    ewmh $ defaultConfig
+        { terminal = "exec urxvt"
+        , workspaces = ["irc", "web"] ++ map show [3 .. 9 :: Int]
+        , mouseBindings = \(XConfig {modMask = modm}) -> M.fromList $
+                [ ((modm, button1), (\w -> focus w >> mouseMoveWindow w))
+                , ((modm, button2), (\w -> focus w >> windows W.swapMaster))
+                , ((modm.|. shiftMask, button1), (\w -> focus w >> mouseResizeWindow w)) ]
+        , keys = \c -> mykeys c `M.union` keys defaultConfig c
+        , logHook = dynamicLogString sjanssenPP >>= xmonadPropLog
+        , layoutHook  = modifiers layouts
+        , manageHook  = composeAll [className =? x --> doShift w
+                                    | (x, w) <- [ ("Firefox", "web")
+                                                , ("Ktorrent", "7")
+                                                , ("Amarokapp", "7")]]
+                        <+> manageHook defaultConfig <+> manageDocks <+> manageSpawn
+                        <+> (isFullscreen --> doFullFloat)
+        , startupHook = mapM_ spawnOnce spawns
+        }
+ where
+    tiled     = HintedTile 1 0.03 0.5 TopLeft
+    layouts   = (tiled Tall ||| (tiled Wide ||| Full)) ||| tabbed shrinkText myTheme
+    modifiers = avoidStruts . smartBorders
+
+    spawns = [ "xmobar"
+             , "xset -b", "xset s off", "xset dpms 0 600 1200"
+             , "nitrogen --set-tiled wallpaper/wallpaper.jpg"
+             , "trayer --transparent true --expand true --align right "
+               ++ "--edge bottom --widthtype request" ]
+
+    mykeys (XConfig {modMask = modm}) = M.fromList $
+        [((modm,               xK_p     ), shellPromptHere myPromptConfig)
+        ,((modm .|. shiftMask, xK_Return), spawnHere =<< asks (terminal . config))
+        ,((modm .|. shiftMask, xK_c     ), kill1)
+        ,((modm .|. shiftMask .|. controlMask, xK_c     ), kill)
+        ,((modm .|. shiftMask, xK_0     ), windows $ copyToAll)
+        ,((modm,               xK_z     ), layoutScreens 2 $ TwoPane 0.5 0.5)
+        ,((modm .|. shiftMask, xK_z     ), rescreen)
+        , ((modm             , xK_b     ), sendMessage ToggleStruts)
+        ]
+
+    myFont = "xft:Bitstream Vera Sans Mono:pixelsize=10"
+    myTheme = defaultTheme { fontName = myFont }
+    myPromptConfig = defaultXPConfig
+                        { position = Top
+                        , font = myFont
+                        , showCompletionOnTab = True
+                        , historyFilter = deleteConsecutive
+                        , promptBorderWidth = 0 }
+   
