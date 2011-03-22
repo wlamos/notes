@@ -1,10 +1,91 @@
 * Tips
+  I mainly referred to the following to configure xmonad
+http://arjuna.deltoso.net/articles/my-configuration-of-xmonad-window-manager-with-xmobar-and-trayer/
+
 ** Modify the mod key
    By default the mod key is Right-Alt, which results in conflicts with Emacs,
-   so it's better to use Super key. Add the following to xmonad.hs
-
-import XMonad
-
-main = xmonad $ defaultConfig { modMask = mod4Mask }
-
+   so it's better to use Super key. 
 ** Using gtk-chtheme to change the themes
+** New configure file (monad.hs)
+import XMonad
+import XMonad.Hooks.DynamicLog
+import XMonad.Hooks.ManageDocks
+import XMonad.Util.Run(spawnPipe)
+import XMonad.Util.EZConfig(additionalKeys)
+import System.IO
+
+myManageHook = composeAll
+    [ className =? "Gimp"      --> doFloat
+    , className =? "Vncviewer" --> doFloat
+    ]
+
+main = do
+    xmproc <- spawnPipe "xmobar"
+    xmonad $ defaultConfig
+        { manageHook = manageDocks <+> myManageHook -- make sure to include myManageHook definition from above
+                        <+> manageHook defaultConfig
+        , layoutHook = avoidStruts  $  layoutHook defaultConfig
+        , logHook = dynamicLogWithPP $ xmobarPP
+                        { ppOutput = hPutStrLn xmproc
+                        , ppTitle = xmobarColor "green" "" . shorten 50
+                        }
+        , modMask = mod4Mask     -- Rebind Mod to the Windows key
+        } `additionalKeys`
+        [ ((controlMask, xK_Print), spawn "sleep 0.2; scrot -s")
+        , ((0, xK_Print), spawn "scrot")
+        ]
+   
+   
+** .xmobarrc
+   Config { font = "-misc-fixed-*-*-*-*-13-*-*-*-*-*-*-*"
+       , bgColor = "black"
+       , fgColor = "grey"
+       , position = TopW L 85
+       , commands = [ Run Network "eth0" ["-L","0","-H","32","--normal","green","--high","red"] 10
+                    , Run Cpu ["-L","15","-H","50","--normal","green","--high","red"] 10
+                    , Run Memory ["-t","Mem: %"] 10
+                    , Run Swap [] 10
+                    , Run Date "%a %b %_d %Y %H:%M:%S" "date" 10
+                    , Run StdinReader
+                    ]
+       , sepChar = "%"
+       , alignSep = "}{"
+       , template = "%StdinReader% }{ %cpu% | %memory% * %swap% | %eth0% | %date%"
+       }
+** xmonad.start
+#!/bin/bash
+
+#xrdb -merge .Xresources
+
+trayer --edge top --align right --SetDockType true --SetPartialStrut true --expand true --width 15 --height 12 --transparent true --tint 0x000000 &
+
+#gnome-screensaver
+
+#gnome-settings-daemon
+
+#if [ -x /usr/bin/gnome-power-manager ] ; then
+#   sleep 1
+#   gnome-power-manager
+#fi
+
+#if [ -x /usr/bin/nm-applet ] ; then
+#   nm-applet --sm-disable &
+#fi
+
+kmix --keepvisibility
+
+#feh --bg-scale /mnt/archivio/foto/2008-2009-dublino/2009-04-10-stefano/hapenny-desktop.jpg &
+
+exec xmonad
+   
+Do remember to chmod + x after creating xmonad.start
+** xmonad.desktop (/usr/share/xsessions/)
+[Desktop Entry]
+Encoding=UTF-8
+Name=XMonad
+Comment=Lightweight tiling window manager
+Exec=xmonad
+#Exec=xmonad.start
+Icon=xmonad.png
+Type=XSession
+
