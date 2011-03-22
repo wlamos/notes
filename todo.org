@@ -20,6 +20,11 @@ I find using auto-revert-mode is OK.
 ** TODO GNUS + kindle plugin
    Email buffers/files to a kindle account
 ** TODO Set grep so that backup files are excluded
+** TODO [#A] Tune xmonad 
+** TODO [#A] Learn the use of Org
+   - how to use agenda efficently
+   - how to add notes to a task
+   - todo/later/deadline/etc
 ** DONE Integrate cvs-examine/magin-status/svn-examine using one-key
    CLOSED: [2010-12-21 Tue 13:42]
    - State "DONE"       from "TODO"       [2010-12-21 Tue 13:42]
