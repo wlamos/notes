@@ -34,7 +34,8 @@ main = do
         , modMask = mod4Mask     -- Rebind Mod to the Windows key
         , workspaces = myWorkspaces
         } `additionalKeys`
-        [ ((controlMask, xK_Print), spawn "sleep 0.2; scrot -s")
+        [ ((mod4Mask .|. shiftMask, xK_z), spawn "xscreensaver-command -lock")
+	((controlMask, xK_Print), spawn "sleep 0.2; scrot -s")
         , ((0, xK_Print), spawn "scrot")
         ]
    
@@ -70,15 +71,16 @@ trayer --edge top --align right --SetDockType true --SetPartialStrut true --expa
 #   sleep 1
 #   gnome-power-manager
 #fi
+xscreensaver -no-splash &
 
 if [ -x /usr/bin/nm-applet ] ; then
    nm-applet --sm-disable &
 fi
 
 kmix --keepvisibility
-
-#feh --bg-scale /mnt/archivio/foto/2008-2009-dublino/2009-04-10-stefano/hapenny-desktop.jpg &
-
+nitrogen --set-tiled ~/share/wallpapers/189fe813dacb594ccb80c41f.jpg
+# auto mounting drives
+thunar --daemon
 exec xmonad
    
 Do remember to chmod + x after creating xmonad.start
@@ -87,7 +89,6 @@ Do remember to chmod + x after creating xmonad.start
 Encoding=UTF-8
 Name=XMonad
 Comment=Lightweight tiling window manager
-#Exec=xmonad
 Exec=xmonad.start
 Icon=xmonad.png
 Type=XSession
