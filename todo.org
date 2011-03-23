@@ -22,9 +22,9 @@ I find using auto-revert-mode is OK.
 ** TODO Set grep so that backup files are excluded
 ** TODO [#A] Tune xmonad 
 ** TODO [#A] Learn the use of Org
-   - how to use agenda efficently
-   - how to add notes to a task
-   - todo/later/deadline/etc
+   - how to use agenda efficiently
+   - C-c C-z to add notes
+   - C-c C-t to toggle different status of current task
 ** DONE Integrate cvs-examine/magin-status/svn-examine using one-key
    CLOSED: [2010-12-21 Tue 13:42]
    - State "DONE"       from "TODO"       [2010-12-21 Tue 13:42]

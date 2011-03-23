@@ -14,6 +14,8 @@ import XMonad.Util.Run(spawnPipe)
 import XMonad.Util.EZConfig(additionalKeys)
 import System.IO
 
+myWorkspaces = ["1:work","2:web","3:chat","4:email","5:remote","6:media","7:media","8:work2","9:todo"]
+
 myManageHook = composeAll
     [ className =? "Gimp"      --> doFloat
     , className =? "Vncviewer" --> doFloat
@@ -30,6 +32,7 @@ main = do
                         , ppTitle = xmobarColor "green" "" . shorten 50
                         }
         , modMask = mod4Mask     -- Rebind Mod to the Windows key
+        , workspaces = myWorkspaces
         } `additionalKeys`
         [ ((controlMask, xK_Print), spawn "sleep 0.2; scrot -s")
         , ((0, xK_Print), spawn "scrot")
