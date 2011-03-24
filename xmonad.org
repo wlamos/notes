@@ -168,3 +168,7 @@ sjanssenConfig =
                         , historyFilter = deleteConsecutive
                         , promptBorderWidth = 0 }
    
+
+# Local Variables:
+# auto-revert-mode: t
+# End:
