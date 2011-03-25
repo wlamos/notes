@@ -443,3 +443,6 @@ xOr在两者中仅有一个取值为1的时候才为真
 
 在SCV中将x<=y表示为
 (!(x & y)) | x.xNor(y)，这个是为什么？
+* Some tip commands
+** Delete a column from a file
+: awk '{$3=""; print $0}' file

@@ -1,7 +1,6 @@
 * Tips
   I mainly referred to the following to configure xmonad
 http://arjuna.deltoso.net/articles/my-configuration-of-xmonad-window-manager-with-xmobar-and-trayer/
-
 ** Modify the mod key
    By default the mod key is Right-Alt, which results in conflicts with Emacs,
    so it's better to use Super key. 
@@ -94,6 +93,8 @@ Icon=xmonad.png
 Type=XSession
 ** change wallpapers using nitrogen:
    nitrogen --set-tiled ~/share/wallpapers/189fe813dacb594ccb80c41f.jpg
+** Ediff issues
+   (setq ediff-window-setup-function 'ediff-setup-windows-plain) 
 * Some other guys' config file
 ** Sajansse
 {-# OPTIONS_GHC -fno-warn-missing-signatures #-}
