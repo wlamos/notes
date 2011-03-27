@@ -1,0 +1,8 @@
+* Apps
+** ftp
+lftp访问某些中文站点出现乱码，可以尝试：
+: # ~/.lftp/rc
+
+: set ftp:charset GBK
+: set file:charset UTF-8
+: set ftp:passive-mode no
