@@ -9,24 +9,29 @@
 
 If a headline starts with the word 'QUOTE', the text below the headline will be typeset as fixed-width, to
 allow quoting of computer codes etc. Lines starting with ':' are also typeset in fixed-width font.
-:C-c : Toggle fixed-width for entry (QUOTE) or region
+: C-c : Toggle fixed-width for entry (QUOTE) or region
 
 **** insert image
 HTML export can inline images given as links in the Org-mode file, and it can make an image the clickable part
 of a link. By default36, images are inlined if a link does not have a description. So 
-:[[[[file:myimg.jpg]]]]
+: [[[[file:myimg.jpg]]]]
 will beinlined, while 
-:[[file:myimg.jpg][the image] ]
+: [[file:myimg.jpg][the image] ]
 will just produce a link `the image' that points to the image. If the description
 part itself is a file: link or a http: URL pointing to an image, this image will be inlined and activated so
 that clicking on the image will activate the link. For example, to include a thumbnail that will link to a
 high resolution version of the image, you could use:
-:[[file:highres.jpg][file:thumb.jpg] ]
+: [[file:highres.jpg][file:thumb.jpg] ]
 
 and you could use http addresses just as well. 
 *** Command
-:emacs -q : do not load an init file
-:emacs -u $user : load $user's init file
+: emacs -q : do not load an init file
+: emacs -u $user : load $user's init file
+*** View info files that are not in info path
+: C-u C-h i
+: M-x woman-find-file
+*** Convert TAB to spaces
+:    M-x untabify
 ** Development
 *** install script of a product
 Just use any one product in JEDA. Modify the install.sh, it's easy.
