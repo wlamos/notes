@@ -1,0 +1,35 @@
+* Shutdown/Reboot issue
+  In ubuntu, click Shutdown/Reboot will not work. Those commands are called as 
+
+: sudo reboot -r
+
+  By default, you need to input password for sudo operations. To handle this:
+
+: sudo visudo /etc/sudoers
+
+add a line as:
+
+: wenliang ALL = NOPASSWD : ALL
+
+And this will fix the problem.
+
+* DNS lost in VPN
+  create a file /etc/bakdns.txt:
+: nameserver 165.87.201.244
+: nameserver 192.168.1.1
+
+And modify /usr/local/bin/sawfish.start, add a line before /exec sawfish/:
+: sudo cp /etc/bakdns.txt /etc/resolv.conf
+
+* Make an IP not using VPN
+  add the following line to openvpn.conf
+
+: route 64.79.125.0 255.255.255.0 net_gateway 5
+
+* My twitter setting
+: (autoload 'twit "twittering-mode" nil t)
+: (eval-after-load "twittering-mode"
+:  '(progn
+:     (setq twittering-use-master-password t)
+:     (setq frame-title-format '("Twitter@Emacs"))
+:     (twittering-icon-mode 1)))
