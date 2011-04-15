@@ -33,3 +33,8 @@ And modify /usr/local/bin/sawfish.start, add a line before /exec sawfish/:
 :     (setq twittering-use-master-password t)
 :     (setq frame-title-format '("Twitter@Emacs"))
 :     (twittering-icon-mode 1)))
+
+* TODO I think it's better using W-S-num to shift a window to a workspace
+  But it seems that it doesn't work.
+* TODO Refine all the keybindings according to their types
+* TODO A blog about the sawfish
