@@ -1,0 +1,66 @@
+#    -*- mode: org -*-
+
+
+Archived entries from file /home/wenliang/work/github/notes/todo.org
+* CANCEL [#A] Tune xmonad 
+  CLOSED: [2011-04-18 Mon 08:42]
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2011-04-18 Mon 08:43
+  :ARCHIVE_FILE: ~/work/github/notes/todo.org
+  :ARCHIVE_OLPATH: Emacs
+  :ARCHIVE_CATEGORY: todo
+  :ARCHIVE_TODO: CANCEL
+  :END:
+  - Note taken on [2011-04-18 Mon 08:43] \\
+    Not use xmonad anymore, transferred to Sawfish
+  - State "CANCEL"     from "TODO"       [2011-04-18 Mon 08:42]
+* DONE Integrate cvs-examine/magin-status/svn-examine using one-key
+  CLOSED: [2010-12-21 Tue 13:42]
+  - State "DONE"       from "TODO"       [2010-12-21 Tue 13:42]
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2011-04-18 Mon 08:43
+  :ARCHIVE_FILE: ~/work/github/notes/todo.org
+  :ARCHIVE_OLPATH: Emacs
+  :ARCHIVE_CATEGORY: todo
+  :ARCHIVE_TODO: DONE
+  :END:
+* DONE check whether there are functions that revert buffers according to mode
+   CLOSED: [2011-01-07 Fri 17:22]
+   - State "DONE"       from "TODO"       [2011-01-07 Fri 17:22]
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2011-04-18 Mon 08:43
+  :ARCHIVE_FILE: ~/work/github/notes/todo.org
+  :ARCHIVE_OLPATH: Emacs
+  :ARCHIVE_CATEGORY: todo
+  :ARCHIVE_TODO: DONE
+  :END:
+   - used in dired mode, mark some buffers, and revert them all.
+   - revert all buffers
+I find using auto-revert-mode is OK.
+* DONE Integrate one-key with wl-compile
+  CLOSED: [2010-12-21 Tue 22:47]
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2011-04-18 Mon 08:43
+  :ARCHIVE_FILE: ~/work/github/notes/todo.org
+  :ARCHIVE_OLPATH: Emacs
+  :ARCHIVE_CATEGORY: todo
+  :ARCHIVE_TODO: DONE
+  :END:
+* DONE look-mode + eimp + dired
+  CLOSED: [2011-01-11 Tue 21:46]
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2011-04-18 Mon 08:44
+  :ARCHIVE_FILE: ~/work/github/notes/todo.org
+  :ARCHIVE_OLPATH: Emacs
+  :ARCHIVE_CATEGORY: todo
+  :ARCHIVE_TODO: DONE
+  :END:
+  when look a file, using d to mark for deletion in the dired mode.
+  In dired-mode, using M-l can look all the files. Using M-m/M-r we can mark,
+  rename current looked files. So there is no need to implement this item.
+
+
+
+
+
+
