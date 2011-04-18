@@ -15,5 +15,7 @@
 ** TODO A blog about how to use look-mode and eimp
 * Sawfish
 ** TODO Write a plugin that can jump to definition of function/macro/variable automatically
+   Some ideas:
+
 ** TODO Find how to handle emacs window in Sawfish
 ** TODO Maybe a separate workspace for twitter?
