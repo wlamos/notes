@@ -60,3 +60,13 @@ And modify /usr/local/bin/sawfish.start, add a line before /exec sawfish/:
   But it seems that it doesn't work.
 * TODO Refine all the keybindings according to their types
 * TODO A blog about the sawfish
+
+* Sawfish
+  做为Emacs重度用户，我或多或少有点键盘控，主要表现在不想用鼠标操作，
+  双手尽可能少的离开主行，这样我可以更好的关注目前正在做的事情。想想下
+  面的情况是不是很讨厌：
+  - 开了很多的窗口，Alt-tab了半天才找到想要的窗口， 一不小心按的太快错
+    过去了更是麻烦。要是能跟Emacs那样，
+    绑定快捷键到对应的窗口就好了。这样在需要某个窗口的时候，用对应的快
+    捷键就可以呼出对应窗口。
+  - 
