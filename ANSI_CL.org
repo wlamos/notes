@@ -57,3 +57,58 @@ number. Uninterned symbol are called gensyms.
 Symbols in the keyword package (known as keywords) have two unique properties:
 they always evaluate to themselves, and you can refer to them anywhere simply
 as :x, instead of keyword:x.
+* Macro
+  Macros operate at a different level than functions and create a
+totally different kind of abstraction
+** Macro Expansion Time vs. Runtime
+   When you write macros, you're writing programs that will be used by
+   the compiler to generate the code that will be compiled. Only after
+   all the macros have been fully expanded and the resulting code
+   compiled can the program actually be run.
+
+   Code running at macro expansion time runs in a very different
+   environment than code running at runtime. Namely, at macro
+   expansion time, there's no way to access the data that will exist
+   at runtime. Code running at macro expansion time can deal only with
+   the data that's inherent in the source code.
+
+   When Lisp is interpreted, rather than compiled, the distinction
+   between macro expansion time and runtime is less clear because
+   they're intertwined. Also the language standard doesn't specify
+   exactly how an interpreter must handle macros.
+
+   The job of the macro is still to produce code that will do
+   something rather than to do anything directly.
+** DEFMACRO
+   The job of a macro is to translate a macro form--in other words, a
+   Lisp form whose first element is the name of the macro--into code
+   that does a particular thing.
+
+   The first step of writing a macro is to write at least one example
+   of a call to the macro and the code into which that call should
+   expand.
+
+   Another useful way to think about the backquote syntax is as a
+   particularly concise way of writing code that generates lists.
+
+   Generate a new symbol each time do-primes is expanded.
+
+   Note that the code that calls GENSYM isn't part of the expansion;
+   it runs as part of the macro expander and thus creates a new symbol
+   each time the macro is expanded.
+** Macro-Writing Macros
+   The job of macros is to abstract away common syntactic patterns!
+** 
+* Blog
+** install quicklisp
+** install nginx
+** install nuclblog
+** install hunchentoot/hunchtoot-vhost/hunchtoot-auth
+** configure nginx (proxy server)
+        location / {
+            proxy_pass   http://127.0.0.1:4242;
+            # root   html;
+            # index  index.html index.htm;
+        }
+   
+** quicklisp is very useful!
