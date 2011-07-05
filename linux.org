@@ -6,3 +6,11 @@ lftp访问某些中文站点出现乱码，可以尝试：
 : set ftp:charset GBK
 : set file:charset UTF-8
 : set ftp:passive-mode no
+** Exchange Alt_L and Super_L for sun keyboard
+   Add the following to ~/.Xmodmap:
+: remove mod1 = Alt_L
+: remove mod4 = Super_L
+: add mod1 = Super_L
+: add mod4 = Alt_L
+
+  # xmodmap ~/.Xmodmap

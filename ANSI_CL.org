@@ -99,6 +99,34 @@ totally different kind of abstraction
 ** Macro-Writing Macros
    The job of macros is to abstract away common syntactic patterns!
 ** 
+* Sequence
+  *MAP*, like the sequence predicate functions, takes a /n/-argument
+   function and /n/ sequences. But instead of a boolean value, *MAP*
+   returns a new sequence containing the result of applying the
+   function to subsequent elements of the sequences.
+
+  *REDUCE* does another kind of mapping: it maps over a single
+   sequence, applying a two-argument function first to the first two
+   elements of the sequence and then to the value returned by the
+   function and subsequent elements of the sequences.
+** Hash Tables
+   Where vectors provide an integer-indexed data structure, hash
+   tables allow you to use arbitrary objects as the indexes, or keys.
+
+   Unlike the :test argument passed to sequence functions,
+   *MAKE-HASH-TABLE*'s :test can't be used to specify an arbitrary
+   function--only the values EQ, EQL, EQUAL and EQUALP.
+
+   Multiple return values: *GETHASH* actually returns two values; the
+   primary value is the value stored under the given key or *NIL*. The
+   secondary value is a boolean indicating whether the key is present
+   in the hash table.
+
+   The consequences of adding or removing elements from a hash table
+   while iterating over it aren't specified (and are likely to be bad)
+   with two exceptions: you can use SETF with GETHASH to change the
+   value of the current entry and you can use REMHASH to remove the
+   current entry. 
 * Blog
 ** install quicklisp
 ** install nginx
